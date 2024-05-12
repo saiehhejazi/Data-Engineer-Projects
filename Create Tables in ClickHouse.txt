@@ -1,0 +1,140 @@
+/*--- Create Tables in ClickHouse ---*/
+ /*-- users --*/
+	CREATE TABLE users
+	(
+		user_id Int,
+		first_name String,
+		last_name String,
+		full_name String,
+		email String,
+		ttl DateTime DEFAULT now()
+	)
+	ENGINE = MergeTree
+	ORDER BY user_id;
+
+
+
+	CREATE TABLE kafka_users
+	(
+		message String
+	)
+	ENGINE  Kafka
+	SETTINGS kafka_broker_list = 'kafka:9092',
+	 kafka_topic_list = 'Mysql.sales.users',
+	 kafka_group_name = 'clickhouse',
+	 kafka_format = 'JSONAsString',
+	 kafka_num_consumers = 1;
+	 
+
+
+	CREATE MATERIALIZED VIEW IF NOT EXISTS mv_users to users
+	(
+		user_id Int,
+		first_name String,
+		last_name String,
+		full_name String,
+		email String
+	) AS SELECT    
+		JSONExtractInt(message,'payload', 'after','user_id') AS user_id,
+		JSONExtractString(message,'payload','after','first_name') AS first_name,
+		JSONExtractString(message,'payload','after','last_name') AS last_name,
+		JSONExtractString(message,'payload','after','full_name') AS full_name,
+		JSONExtractString(message,'payload','after','email') AS email
+	FROM kafka_users
+	SETTINGS stream_like_engine_allow_direct_select = 1;
+	
+	
+	/*-- products --*/
+	    CREATE TABLE products
+		(
+			product_id Int,
+			product_name String,
+			product_brand String,
+			product_group String,
+			product_lables String,
+			ttl DateTime DEFAULT now()
+		)
+		ENGINE = MergeTree
+		ORDER BY product_id;
+
+
+
+		CREATE TABLE kafka_products
+		(
+			message String
+		)
+		ENGINE  Kafka
+		SETTINGS kafka_broker_list = 'kafka:9092',
+		 kafka_topic_list = 'Mysql.sales.products',
+		 kafka_group_name = 'clickhouse',
+		 kafka_format = 'JSONAsString',
+		 kafka_num_consumers = 1;
+		 
+
+
+		CREATE MATERIALIZED VIEW IF NOT EXISTS mv_products to products
+		(
+			product_id Int,
+			product_name String,
+			product_brand String,
+			product_group String,
+			product_lables String
+		) AS SELECT    
+			JSONExtractInt(message,'payload', 'after','product_id') AS product_id,
+			JSONExtractString(message,'payload','after','product_name') AS product_name,
+			JSONExtractString(message,'payload','after','product_brand') AS product_brand,
+			JSONExtractString(message,'payload','after','product_group') AS product_group,
+			JSONExtractString(message,'payload','after','product_lables') AS product_lables
+		FROM kafka_products
+		SETTINGS stream_like_engine_allow_direct_select = 1;
+		
+ /*--orders --*/		
+				           
+	CREATE TABLE orders
+	(
+		order_id Int,
+		user_id Int,
+		product_id Int,
+		qty Int,
+		total_amount Int,
+		is_final UInt8,
+		order_date DateTime64,
+		ttl DateTime DEFAULT now()
+	)
+	ENGINE = MergeTree
+	ORDER BY order_id;
+
+
+
+	CREATE TABLE kafka_orders
+	(
+		message String
+	)
+	ENGINE  Kafka
+	SETTINGS kafka_broker_list = 'kafka:9092',
+	 kafka_topic_list = 'Mysql.sales.orders',
+	 kafka_group_name = 'clickhouse',
+	 kafka_format = 'JSONAsString',
+	 kafka_num_consumers = 1;
+	 
+
+
+	CREATE MATERIALIZED VIEW IF NOT EXISTS mv_orders to orders
+	(
+		order_id Int,
+		user_id Int,
+		product_id Int,
+		qty Int,
+		total_amount Int,
+		is_final UInt8,
+		order_date datetime
+	) AS SELECT    
+		JSONExtractInt(message,'after','order_id') AS order_id,
+		JSONExtractInt(message,'after','user_id') AS user_id,
+		JSONExtractInt(message,'after','product_id') AS product_id,
+		JSONExtractInt(message,'after','qty') AS qty,
+		JSONExtractInt(message,'after','total_amount') AS total_amount,
+		JSONExtractInt(message,'after','is_final') AS is_final,
+		JSONExtractString(message,'after','order_date') AS order_date
+	FROM kafka_orders
+	SETTINGS stream_like_engine_allow_direct_select = 1;

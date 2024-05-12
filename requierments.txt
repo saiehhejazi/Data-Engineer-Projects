@@ -1,0 +1,6 @@
+pandas
+tqdm
+datetime
+faker
+sqlalchemy
+mysql.connector

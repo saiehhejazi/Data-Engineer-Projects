@@ -21,4 +21,5 @@ Also in this project to manage and monitor Kafka from **akhq** program.
 
 Finally, after saving the data in the Clickhouse database, we connect to the Clickhouse database using the facilities provided by Superset and create a dashboard.
 
-![Dashboards in Supperset](https://github.com/saiehhejazi/Data-Engineer-Projects/assets/166489248/708d2860-9d21-417a-84b5-14e0b3e14c31)
+![Screenshot from 2024-05-12 16-56-34](https://github.com/saiehhejazi/Data-Engineer-Projects/assets/166489248/81e9f096-34c7-47c0-8f9c-bf96a997d2aa)
+

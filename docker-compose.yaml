@@ -1,0 +1,118 @@
+version: '2'
+services:
+  zookeeper:
+    image: quay.io/debezium/zookeeper
+    container_name: zookeeper
+    hostname: zookeeper 
+    restart: unless-stopped 
+    ports:     
+     - 2181:2181
+    environment:
+     - ZOOKEEPER_CLIENT_PORT=2181
+     - ZOOKEEPER_TICK_TIME=2000   
+    networks:
+      - services
+
+  kafka:
+    image: confluentinc/cp-kafka:7.5.0
+    container_name: kafka
+    hostname: kafka
+    ports:
+     - 9092:9092     
+     - 29092:29092
+     - 9999:9999
+    links:
+     - zookeeper
+    environment:
+     - KAFKA_BROKER_ID= 1
+     - KAFKA_ZOOKEEPER_CONNECT=zookeeper:2181
+     - KAFKA_BOOTSTRAP_SERVERS= kafka:9092
+     - KAFKA_ADVERTISED_LISTENERS=PLAINTEXT://kafka:9092
+     - KAFKA_LISTENER_SECURITY_PROTOCOL_MAP= PLAINTEXT:PLAINTEXT,PLAINTEXT_INTERNAL:PLAINTEXT
+     - KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR= 1     
+    networks:
+      - services 
+                
+  mysql:
+    image: quay.io/debezium/example-mysql
+    container_name: mysql
+    hostname: mysql
+    ports:
+     - 3306:3306
+    environment:
+      - MYSQL_ROOT_PASSWORD=hekmat@1402      
+    networks:
+      - services  
+
+  connect:
+    build:
+      context: ./connect
+    hostname: connect
+    container_name: connect
+    restart: unless-stopped
+    ports:
+     - 8083:8083
+    links:
+     - kafka
+     - mysql
+    environment:
+      CONNECT_BOOTSTRAP_SERVERS: 'kafka:9092'
+      CONNECT_REST_ADVERTISED_HOST_NAME: 'connect'
+      CONNECT_GROUP_ID: 1
+      CONNECT_CONFIG_STORAGE_TOPIC: connect_configs
+      CONNECT_STATUS_STORAGE_TOPIC: connect_statuses
+      CONNECT_OFFSET_STORAGE_TOPIC: connect_offsets
+      CONNECT_KEY_CONVERTER: org.apache.kafka.connect.json.JsonConverter
+      CONNECT_VALUE_CONVERTER: org.apache.kafka.connect.json.JsonConverter
+      ENABLE_DEBEZIUM_SCRIPTING: 'true'
+      CONNECT_CONFIG_STORAGE_TOPIC: 'connect_config'
+      CONNECT_CONFIG_STORAGE_REPLICATION_FACTOR: '1'
+      CONNECT_OFFSET_STORAGE_TOPIC: 'connect_offset'
+      CONNECT_OFFSET_STORAGE_REPLICATION_FACTOR: '1'
+      CONNECT_STATUS_STORAGE_TOPIC: 'connect_status'
+      CONNECT_STATUS_STORAGE_REPLICATION_FACTOR: '1'      
+    networks:
+      - services  
+ 
+
+  akhq:
+    image: tchiotludo/akhq
+    restart: unless-stopped
+    environment:
+      AKHQ_CONFIGURATION: |
+        akhq:
+          connections:
+            docker-kafka-server:
+              properties:
+                bootstrap.servers: "kafka:9092"
+              connect:
+                - name: "connect"
+                  url: "http://connect:8083"
+
+    ports:
+      - 8080:8080
+    links:
+      - zookeeper
+      - kafka      
+    networks:
+      - services  
+      
+  clickhouse:
+    image: clickhouse/clickhouse-server
+    container_name: clickhouse
+    hostname: clickhouse
+    environment:
+      CLICKHOUSE_ALWAYS_RUN_INITDB_SCRIPTS: 1
+    ports:
+      - 8123:8123
+      - 9000:9000
+    links:
+      - zookeeper
+      - kafka
+      - connect       
+    networks:
+      - services  
+           
+networks:
+  services: 
+    external: true    

@@ -14,3 +14,11 @@ There are several solutions that have been implemented in the real world to solv
 **Kafka Connect:** Kafka connect framework is an extension of Kafka which provides a good abstraction layer for the data that is received from the source database. With the built-in converter functionality, the source connectors convert the data received from the source database to a unified Kafka connect data schema. This makes it easier to develop the sink connector as the sink only needs to transform the Kafka connect data schema to the destination sink data type.
 
 **ClickHouse** is a high-performance, column-oriented SQL database management system (DBMS) for online analytical processing (OLAP). It is available as both an open-source software and a cloud offering.
+
+Also in this project to manage and monitor Kafka from **akhq** program.
+
+![Screenshot from 2024-05-12 16-49-11](https://github.com/saiehhejazi/Data-Engineer-Projects/assets/166489248/e66ff6cc-36db-4e80-9027-203927ae660f)
+
+Finally, after saving the data in the Clickhouse database, we connect to the Clickhouse database using the facilities provided by Superset and create a dashboard.
+
+![Dashboards in Supperset](https://github.com/saiehhejazi/Data-Engineer-Projects/assets/166489248/708d2860-9d21-417a-84b5-14e0b3e14c31)

@@ -1,4 +1,3 @@
-The aim of this project is to capture every change (insert, and update) from the Mysql table and sync it with Clickhouse.
 Transactional Databases like MySQL and PostgreSQL routinely process hundreds of thousands of transactions per second on busy web properties. 
 For analyzing those transactions in real-time an analytic database like ClickHouse is a perfect fit as it provides a lot of benefits like columnar storage, efficient data compression and parallel query processing. These benefits translate to cost savings and performance improvements for the end-user.
 
@@ -23,3 +22,6 @@ Finally, after saving the data in the Clickhouse database, we connect to the Cli
 
 ![Screenshot from 2024-05-12 16-56-34](https://github.com/saiehhejazi/Data-Engineer-Projects/assets/166489248/81e9f096-34c7-47c0-8f9c-bf96a997d2aa)
 
+
+
+**All steps are implemented using Docker. In the following, each of the steps is explained**

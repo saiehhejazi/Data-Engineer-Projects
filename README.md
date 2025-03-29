@@ -22,6 +22,3 @@ Finally, after saving the data in the Clickhouse database, we connect to the Cli
 
 ![Screenshot from 2024-05-12 16-56-34](https://github.com/saiehhejazi/Data-Engineer-Projects/assets/166489248/81e9f096-34c7-47c0-8f9c-bf96a997d2aa)
 
-
-
-**All steps are implemented using Docker. In the following, each of the steps is explained**
